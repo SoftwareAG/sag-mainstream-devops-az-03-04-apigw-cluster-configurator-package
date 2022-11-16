@@ -7,9 +7,9 @@ volumes:
   esdata-t: {}
 
 networks:
-  agpigw-nw-1:
+  agpigw-nw-2:
     # For setting a specific network name.
-    name: agpigw-nw-1
+    name: agpigw-nw-2
 
 services:
 
@@ -38,7 +38,7 @@ services:
       # REST interface
       - ${H_SUIF_PORT_PREFIX}20:9200
     networks:
-      - agpigw-nw-1
+      - agpigw-nw-2
     healthcheck:
       interval: 20s
       retries: 10
@@ -50,7 +50,7 @@ services:
     ports:
       - "${H_SUIF_PORT_PREFIX}80:8080"
     networks:
-      - agpigw-nw-1
+      - agpigw-nw-2
   
   # API Gateway
   apigateway:
@@ -59,10 +59,8 @@ services:
     # Container name
     container_name: api-gateway-01
     volumes:
-      #- ${API_GW_LICENSE_FILE}:${SAG_HOME}/IntegrationServer/instances/${INSTANCE_NAME}/config/licenseKey.xml
       - ${API_GW_LICENSE_FILE}:/tmp/license.xml
       - ./application.properties:/tmp/application.properties
-      - ../../code/is-packages/WxApiGwClusterConfigurator:${SAG_HOME}/IntegrationServer/instances/default/packages/WxApiGwClusterConfigurator
       - ./clusterConfig1.json:/tmp/apigw-cluster-config.json
     environment:
       - SAG_IS_LICENSE_FILE=/tmp/license.xml
@@ -86,7 +84,7 @@ services:
       - ${H_SUIF_PORT_PREFIX}72:9072
     # Needs to be the same network for all containers.
     networks:
-      - agpigw-nw-1
+      - agpigw-nw-2
     depends_on:
       core-elasticsearch:
         condition: service_healthy
@@ -119,7 +117,7 @@ services:
     ports:
     - ${H_SUIF_PORT_PREFIX}56:5601
     networks:
-    - agpigw-nw-1
+    - agpigw-nw-2
     healthcheck:
       interval: 10s
       retries: 20
@@ -150,7 +148,7 @@ services:
       # REST interface
       - ${H_SUIF_PORT_PREFIX}21:9200
     networks:
-      - agpigw-nw-1
+      - agpigw-nw-2
     healthcheck:
       interval: 20s
       retries: 10
