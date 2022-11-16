@@ -1,0 +1,151 @@
+# Also see https://github.com/SoftwareAG/webmethods-api-gateway/tree/master/samples/docker/deploymentscripts/apigw-elasticsearch-no-cluster
+
+version: '3.8'
+
+volumes:
+  esdata: {}
+  esdata-t: {}
+
+networks:
+  agpigw-nw-1:
+    # For setting a specific network name.
+    name: agpigw-nw-1
+
+services:
+
+  # Elasticsearch server for core data
+  core-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${CORE_ELK_VERSION}
+    container_name: core-elasticsearch
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - http.cors.enabled=true
+      - http.cors.allow-origin=/.*/
+      # Important when you have several Elasticsearch containers. They need to be in the same network. Should be a different name than in other environments.
+      - cluster.name=SAG_EventDataStore
+      # The node name. Used for inital master node discovery.
+      - node.name=core-elasticsearch
+      # For discovery of all Elasticsearch containers.
+      - discovery.seed_hosts=core-elasticsearch:9300
+      # Used for cluster bootstrapping. The mentioned nodes are potential master nodes.
+      - cluster.initial_master_nodes=core-elasticsearch
+      # got this from the elasticvue hints
+      - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,Authorization
+      - ELASTIC_PASSWORD=${PROVIDED_ELASTIC_PASSWORD}
+      - xpack.security.enabled=false
+    ports:
+      # REST interface
+      - ${H_SUIF_PORT_PREFIX}20:9200
+    networks:
+      - agpigw-nw-1
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  # Elasticvue content explorer for elasticsearch, use for observability reasons
+  elasticvue:
+    image: cars10/elasticvue
+    ports:
+      - "${H_SUIF_PORT_PREFIX}80:8080"
+    networks:
+      - agpigw-nw-1
+  
+  # API Gateway
+  apigateway:
+    # Image name
+    image: ${APIGW_DOCKER_IMAGE_NAME}
+    # Container name
+    container_name: api-gateway-01
+    volumes:
+      #- ${API_GW_LICENSE_FILE}:${SAG_HOME}/IntegrationServer/instances/${INSTANCE_NAME}/config/licenseKey.xml
+      - ${API_GW_LICENSE_FILE}:/tmp/license.xml
+      - ../../code/is-packages/WxApiGwClusterConfigurator:${SAG_HOME}/IntegrationServer/instances/default/packages/WxApiGwClusterConfigurator
+    environment:
+      - SAG_IS_LICENSE_FILE=/tmp/license.xml
+      # Name and port of the REST interface of the Elasticsearch container.
+      - apigw_elasticsearch_hosts=core-elasticsearch:9200
+      # HTTPS enablement.
+      - apigw_elasticsearch_https_enabled=false
+      # Username and password for Elasticsearch. As standard leave it blank.
+      - apigw_elasticsearch_http_username=elastic
+      - apigw_elasticsearch_http_password=${PROVIDED_ELASTIC_PASSWORD}
+      # external kibana
+      - apigw_kibana_dashboardInstance=http://host.docker.internal:${H_SUIF_PORT_PREFIX}56
+      - apigw_kibana_autostart=false
+    # Setting for exposing ports to the outside (external port:internal port).
+    ports:
+      # Server port
+      - ${H_SUIF_PORT_PREFIX}55:5555
+      # UI port
+      - ${H_SUIF_PORT_PREFIX}72:9072
+    # Needs to be the same network for all containers.
+    networks:
+      - agpigw-nw-1
+    depends_on:
+      core-elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5555/rest/apigateway/health
+      interval: 30s
+      timeout: 10s
+      retries: 2
+      start_period: 120s
+
+  # Kibana may be run externally and not in API Gw container
+  core-kibana:
+    image: docker.elastic.co/kibana/kibana:${CORE_ELK_VERSION}
+    depends_on:
+      #core-elasticsearch:
+      #  condition: service_healthy
+      apigateway:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - KIBANA_EXTERNAL_HOSTNAME=http://host.docker.internal:${H_SUIF_PORT_PREFIX}56
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${PROVIDED_ELASTIC_PASSWORD}
+      - SERVER_BASEPATH=/apigatewayui/dashboardproxy
+      - CONSOLE_ENABLED=false
+      - KIBANA_INDEX=gateway_default_dashboard
+    ports:
+    - ${H_SUIF_PORT_PREFIX}56:5601
+    networks:
+    - agpigw-nw-1
+    healthcheck:
+      interval: 10s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5601/api/status
+
+  # Elasticsearch server for transaction data
+  transactions-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${DESTINATION_ELK_VERSION}
+    container_name: transactions-elasticsearch
+    volumes:
+      - esdata-t:/usr/share/elasticsearch/data
+    environment:
+      - http.cors.enabled=true
+      - http.cors.allow-origin=/.*/
+      # Important when you have several Elasticsearch containers. They need to be in the same network. Should be a different name than in other environments.
+      - cluster.name=SAG_TransactionDataStore
+      # The node name. Used for inital master node discovery.
+      - node.name=elasticsearch
+      # For discovery of all Elasticsearch containers.
+      - discovery.seed_hosts=transactions-elasticsearch:9300
+      # Used for cluster bootstrapping. The mentioned nodes are potential master nodes.
+      - cluster.initial_master_nodes=transactions-elasticsearch
+      # got this from the elasticvue hints
+      - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,Authorization
+      - ELASTIC_PASSWORD=${PROVIDED_ELASTIC_PASSWORD}
+      - xpack.security.enabled=false
+    ports:
+      # REST interface
+      - ${H_SUIF_PORT_PREFIX}21:9200
+    networks:
+      - agpigw-nw-1
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'

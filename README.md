@@ -1,2 +1,3 @@
-# sag-mainstream-devops-az-03-04-apigw-cluster-configurator-package
-Base package for IS side API Gateway post- startup cluster configuration
+# Software AG Mainstream DevOps Style API Gateway Cluster Configurator Package
+
+This repository provides a base Integration Server package that provides a way to configure the API Gateway cluster at Integration server startup time.

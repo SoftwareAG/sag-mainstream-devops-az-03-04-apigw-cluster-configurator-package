@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <value name="name">getEnvVar</value>
+  <value name="encodeutf8">true</value>
+  <value name="body">Ly8gcGlwZWxpbmUNCklEYXRhQ3Vyc29yIHBpcGVsaW5lQ3Vyc29yID0gcGlwZWxpbmUuZ2V0Q3Vy
+c29yKCk7DQoJU3RyaW5nCWVudlZhck5hbWUgPSBJRGF0YVV0aWwuZ2V0U3RyaW5nKCBwaXBlbGlu
+ZUN1cnNvciwgImVudlZhck5hbWUiICk7DQpwaXBlbGluZUN1cnNvci5kZXN0cm95KCk7DQoNCmlm
+ICggbnVsbCAhPSBlbnZWYXJOYW1lICYmIDAgPCBlbnZWYXJOYW1lLmxlbmd0aCgpICl7DQoJLy8g
+cGlwZWxpbmUNCglJRGF0YUN1cnNvciBwaXBlbGluZUN1cnNvcl8xID0gcGlwZWxpbmUuZ2V0Q3Vy
+c29yKCk7DQoJSURhdGFVdGlsLnB1dCggcGlwZWxpbmVDdXJzb3JfMSwgImVudlZhclZhbHVlIiwg
+ImVudlZhclZhbHVlIiApOw0KCXBpcGVsaW5lQ3Vyc29yXzEuZGVzdHJveSgpOyANCn0=</value>
+</Values>
