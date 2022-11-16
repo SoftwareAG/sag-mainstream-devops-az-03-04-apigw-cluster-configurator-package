@@ -5,7 +5,7 @@
 
   <!-- nodes -->
 
-<INVOKE SCOPE="elasticsearchDestinationConfig" TIMEOUT="" SERVICE="apigateway.configurations:getConfiguration" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE SCOPE="currentElasticsearchDestinationConfig" TIMEOUT="" SERVICE="apigateway.configurations:getConfiguration" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT>ATTN: Scoped</COMMENT>
 
   <!-- nodes -->
@@ -56,7 +56,7 @@
     <value name="node_type">record</value>
     <value name="node_subtype">unknown</value>
     <value name="is_public">false</value>
-    <value name="field_name">elasticsearchDestinationConfig</value>
+    <value name="field_name">currentElasticsearchDestinationConfig</value>
     <value name="field_type">record</value>
     <value name="field_dim">0</value>
     <value name="nillable">true</value>
@@ -108,7 +108,7 @@
     <value name="node_type">record</value>
     <value name="node_subtype">unknown</value>
     <value name="is_public">false</value>
-    <value name="field_name">elasticsearchDestinationConfig</value>
+    <value name="field_name">currentElasticsearchDestinationConfig</value>
     <value name="field_type">record</value>
     <value name="field_dim">0</value>
     <value name="nillable">true</value>
@@ -125,6 +125,26 @@
         <value name="nillable">true</value>
         <value name="form_qualified">false</value>
         <value name="is_global">false</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">record</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">currentElasticsearchDestinationConfig</value>
+        <value name="field_type">recref</value>
+        <value name="field_dim">0</value>
+        <value name="wrapper_type">IData</value>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+        <value name="rec_closed">true</value>
+        <value name="modifiable">true</value>
+        <value name="rec_ref">wx.apigateway.ClusterConfigurator.configs.elasticsearchDestinationConfig:configDoc</value>
       </record>
     </array>
     <value name="modifiable">true</value>

@@ -61,9 +61,13 @@ services:
     volumes:
       #- ${API_GW_LICENSE_FILE}:${SAG_HOME}/IntegrationServer/instances/${INSTANCE_NAME}/config/licenseKey.xml
       - ${API_GW_LICENSE_FILE}:/tmp/license.xml
+      - ./application.properties:/tmp/application.properties
       - ../../code/is-packages/WxApiGwClusterConfigurator:${SAG_HOME}/IntegrationServer/instances/default/packages/WxApiGwClusterConfigurator
+      - ./clusterConfig1.json:/tmp/apigw-cluster-config.json
     environment:
       - SAG_IS_LICENSE_FILE=/tmp/license.xml
+      - SAG_IS_CONFIG_PROPERTIES=/tmp/application.properties
+      - WX_CONFIG_APIGATEWAY_CLUSTER_JSON_FILE=/tmp/apigw-cluster-config.json
       # Name and port of the REST interface of the Elasticsearch container.
       - apigw_elasticsearch_hosts=core-elasticsearch:9200
       # HTTPS enablement.
@@ -102,8 +106,8 @@ services:
       apigateway:
         condition: service_healthy
     environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_URL=http://core-elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://core-elasticsearch:9200
       - KIBANA_EXTERNAL_HOSTNAME=http://host.docker.internal:${H_SUIF_PORT_PREFIX}56
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=${PROVIDED_ELASTIC_PASSWORD}
@@ -131,7 +135,7 @@ services:
       # Important when you have several Elasticsearch containers. They need to be in the same network. Should be a different name than in other environments.
       - cluster.name=SAG_TransactionDataStore
       # The node name. Used for inital master node discovery.
-      - node.name=elasticsearch
+      - node.name=transactions-elasticsearch
       # For discovery of all Elasticsearch containers.
       - discovery.seed_hosts=transactions-elasticsearch:9300
       # Used for cluster bootstrapping. The mentioned nodes are potential master nodes.
