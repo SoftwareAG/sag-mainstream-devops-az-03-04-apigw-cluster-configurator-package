@@ -1,7 +1,7 @@
 {
   "forceApply" : "false",
   "elasticsearchDestinationConfig" : {
-    "hostName" : "transactions-elasticsearch",
+    "hostName" : "transactions-elasticsearch-t1",
     "sendAuditlogPackageManagementEvent" : "true",
     "sendAuditlogPlanManagementEvent" : "true",
     "sendPerformanceMetrics" : "true",
