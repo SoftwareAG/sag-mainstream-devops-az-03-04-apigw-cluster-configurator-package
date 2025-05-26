@@ -1,4 +1,6 @@
-# Software AG Mainstream DevOps Style API Gateway Cluster Configurator Package
+# MOVING - Software AG Mainstream DevOps Style API Gateway Cluster Configurator Package
+
+# This repo will be moved away from the Software AG organization
 
 ## Overview
 
